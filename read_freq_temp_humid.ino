@@ -68,25 +68,25 @@ void setup()
     pinMode(CAPTURE_PIN, INPUT);
     pinMode(DEBUG_PIN, OUTPUT);
     pinMode (DHpin, OUTPUT);
-   
+
     cli();
     /* Timer 2 (8-bit) setup */
     TCCR2A = 0;
     TCCR2B = (1 << CS22) | (1 << CS21); /* Prescaler: 256 */
     TIMSK2 = (1 << TOIE2);  /* Overflow interrupt enable */
-    
+
     /* Timer 1 (16-bit) setup */
     TCCR1A = 0;
     TCCR1B = (1 << CS10)   /* No prescaler */
            | (1 << ICNC1)  /* Input noise cancelling */
            | (1 << ICES1); /* Rising edge triggered */
     TCCR1C = 0;
-    
+
     TIMSK1 = (1 << ICIE1)  /* Input capture interrupt enable */
            | (1 << TOIE1); /* Overflow interrupt enable */
-    
+
     TIFR1 = (1 << TOV1) | (1 << ICF1); /* clear pending interrupts */
-    
+
     sei();
 }
 
@@ -206,7 +206,7 @@ static void eval_print()
         freq = (float)timer1_capt_cnt / t_diff * (F_CPU - F_CPU_CORR);
     else
         freq = 0.0;
-    
+
     lcd.setCursor(sizeof(text1)-1, 0);
     lcd.print("      ");
     lcd.setCursor(sizeof(text1)-1, 0);
@@ -222,7 +222,7 @@ static void eval_print()
     }
     else
         lcd.print("---");
-    
+
     start_test ();
     Serial.print ("Humidity = ");
     Serial.print (dat [0], DEC); // display the humidity-bit integer;
@@ -253,7 +253,7 @@ static void measure_cyclic()
 {
     uint16_t adc_data;
     uint16_t buf_data;
-    
+
     static uint8_t wait_cnt = 0;
 
     cli();
@@ -333,13 +333,13 @@ ISR(TIMER1_CAPT_vect)
             t_last = ICR1;
             t_last += ((uint32_t)timer1_ovf_cnt << 16);
         }
-        
+
         /* handle interrupts which occur at the same time */
         if (TIFR1 & (1 << TOV1) && ((t_last & 0xffff) < 0x8000))
         {
             t_last += ((uint32_t)1 << 16);
         }
-        
+
         /* catch events which come while ISR is executed */
         /*
         if ((TIFR1 & (1 << ICF1)))
@@ -361,7 +361,7 @@ ISR(TIMER1_OVF_vect, ISR_NOBLOCK)
 void loop()
 {
     static uint16_t loop_cnt = (CYCLE_TIME_3/CYCLE_TIME_2)-1;
-    
+
     measure_cyclic();
 
     if (++loop_cnt == (CYCLE_TIME_3/CYCLE_TIME_2))
